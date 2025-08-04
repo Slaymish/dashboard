@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>In the Room - Personal Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+  <style>
+    :root {
+      --bg: #2f3e46;
+      --card-bg: #354f52;
+      --accent: #00ffd5;
+      --accent-hover: #00e6c3;
+      --success: #4ade80;
+      --warning: #fbbf24;
+      --danger: #ef4444;
+      --text: #edf6f9;
+      --text-muted: #b0c4de;
+      --shadow: rgba(0, 0, 0, 0.4);
+      --shadow-hover: rgba(0, 0, 0, 0.6);
+      --font: 'Helvetica Neue', Arial, sans-serif;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --border-radius: 0.75rem;
+      --glass-bg: rgba(53, 79, 82, 0.8);
+    }
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+    }
+    
+    html { 
+      scroll-behavior: smooth; 
+    }
+    
+    body { 
+      margin: 2rem; 
+      background: linear-gradient(135deg, var(--bg) 0%, #1a2831 100%);
+      min-height: 100vh;
+      color: var(--text); 
+      font-family: var(--font); 
+      line-height: 1.6;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 20% 80%, rgba(0, 255, 213, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(0, 255, 213, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    h1 { 
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin-bottom: 2rem; 
+      text-align: center; 
+      color: var(--accent);
+      text-shadow: 0 2px 10px rgba(0, 255, 213, 0.3);
+      animation: fadeInDown 0.6s ease-out;
+    }
+    
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .cards { 
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem; 
+      margin-top: 2rem;
+      animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+    
+    .card { 
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 255, 213, 0.1);
+      border-radius: var(--border-radius);
+      box-shadow: 0 8px 32px var(--shadow);
+      padding: 2rem; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 1.5rem; 
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--transition);
+    }
+    
+    .card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 20px 40px var(--shadow-hover);
+      border-color: rgba(0, 255, 213, 0.3);
+    }
+    
+    .card:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .card h2 { 
+      font-size: 1.5rem; 
+      border-bottom: 2px solid var(--accent); 
+      padding-bottom: 0.75rem; 
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .todo ol, .goals ul { 
+      list-style-position: inside; 
+      padding-left: 1rem; 
+    }
+    
+    .todo li { 
+      margin-bottom: 1rem;
+      position: relative;
+      padding-left: 1.5rem;
+      transition: all var(--transition);
+    }
+    
+    .todo li::before {
+      content: '📋';
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+    
+    .todo li.completed {
+      opacity: 0.6;
+      text-decoration: line-through;
+    }
+    
+    .todo li.completed::before {
+      content: '✅';
+    }
+    
+    .todo li ul { 
+      margin-top: 0.75rem; 
+      padding-left: 1.5rem; 
+      list-style-type: disc; 
+    }
+    
+    .todo li ul li {
+      margin-bottom: 0.5rem;
+      padding-left: 0;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    
+    .todo li ul li::before {
+      content: none;
+    }
+    
+    .todo li ul li:hover {
+      color: var(--accent);
+      transform: translateX(5px);
+    }
+    
+    .goals ul li {
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+      position: relative;
+      transition: all var(--transition);
+    }
+    
+    .goals ul li::before {
+      content: '🎯';
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+    
+    .goals ul li:hover {
+      transform: translateX(5px);
+    }
+    
+    a { 
+      color: var(--accent); 
+      text-decoration: none; 
+      transition: all var(--transition);
+      position: relative;
+    }
+    
+    a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--transition);
+    }
+    
+    a:hover::after {
+      transform: scaleX(1);
+    }
+    
+    a:hover { 
+      color: var(--accent-hover);
+    }
+    .timer { 
+      font-size: 3rem;
+      font-weight: 700;
+      text-align: center; 
+      padding: 1.5rem; 
+      background: linear-gradient(135deg, #1f2a30 0%, #0f1419 100%);
+      border: 2px solid var(--accent);
+      border-radius: var(--border-radius);
+      margin-bottom: 1.5rem;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.1em;
+      text-shadow: 0 0 20px rgba(0, 255, 213, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .timer.active {
+      animation: pulse 2s infinite;
+    }
+    
+    .timer.break {
+      border-color: var(--success);
+      color: var(--success);
+      text-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+    }
+    
+    @keyframes pulse {
+      0%, 100% { 
+        box-shadow: 0 0 20px rgba(0, 255, 213, 0.3);
+      }
+      50% { 
+        box-shadow: 0 0 30px rgba(0, 255, 213, 0.6);
+      }
+    }
+    
+    .timer-controls { 
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .timer-controls button { 
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      border: none; 
+      padding: 0.75rem 1.5rem; 
+      border-radius: var(--border-radius);
+      color: var(--bg); 
+      cursor: pointer; 
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+      min-width: 100px;
+    }
+    
+    .timer-controls button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .timer-controls button:hover::before {
+      left: 100%;
+    }
+    
+    .timer-controls button:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 255, 213, 0.3);
+    }
+    
+    .timer-controls button:active { 
+      transform: translateY(0);
+    }
+    
+    .timer-controls button:focus { 
+      outline: 3px solid rgba(0, 255, 213, 0.5);
+      outline-offset: 2px; 
+    }
+    
+    .timer-controls button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .timer-presets {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .timer-presets button {
+      background: rgba(0, 255, 213, 0.1);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 0.5rem 1rem;
+      border-radius: calc(var(--border-radius) / 2);
+      cursor: pointer;
+      transition: all var(--transition);
+      font-size: 0.85rem;
+    }
+    
+    .timer-presets button:hover,
+    .timer-presets button.active {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    
+    .timer-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--border-radius);
+    }
+    
+    .stat {
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: block;
+    }
+    
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .reflections textarea { 
+      width: 100%; 
+      height: 140px; 
+      background: linear-gradient(135deg, #1f2a30 0%, #0f1419 100%);
+      border: 2px solid rgba(0, 255, 213, 0.3);
+      border-radius: var(--border-radius);
+      color: var(--text); 
+      padding: 1rem; 
+      resize: vertical; 
+      transition: all var(--transition);
+      font-family: var(--font);
+      line-height: 1.6;
+    }
+    
+    .reflections textarea:focus { 
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(0, 255, 213, 0.3);
+      outline: none; 
+      transform: scale(1.02);
+    }
+    
+    .reflections textarea::placeholder {
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+    
+    .reflections .btn-group { 
+      display: flex; 
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .reflections button { 
+      flex: 1;
+      min-width: 120px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      border: none; 
+      padding: 0.75rem 1rem;
+      border-radius: var(--border-radius);
+      color: var(--bg); 
+      cursor: pointer; 
+      transition: all var(--transition);
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .reflections button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .reflections button:hover::before {
+      left: 100%;
+    }
+    
+    .reflections button:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 255, 213, 0.3);
+    }
+    
+    .reflections button:active { 
+      transform: translateY(0);
+    }
+    
+    .log-container { 
+      max-height: 300px; 
+      overflow-y: auto; 
+      background: linear-gradient(135deg, #1f2a30 0%, #0f1419 100%);
+      border: 2px solid rgba(0, 255, 213, 0.3);
+      border-radius: var(--border-radius);
+      padding: 1rem; 
+      margin-top: 1.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent) transparent;
+    }
+    
+    .log-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .log-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .log-container::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 3px;
+    }
+    
+    .log-entry { 
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: rgba(0, 255, 213, 0.05);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 var(--border-radius) var(--border-radius) 0;
+      transition: all var(--transition);
+    }
+    
+    .log-entry:hover {
+      background: rgba(0, 255, 213, 0.1);
+      transform: translateX(5px);
+    }
+    
+    .log-entry time { 
+      display: block; 
+      font-size: 0.85rem; 
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .log-entry p {
+      margin: 0;
+      line-height: 1.6;
+    }
+    
+    .search-container {
+      margin-bottom: 1rem;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 0.75rem;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(0, 255, 213, 0.3);
+      border-radius: var(--border-radius);
+      color: var(--text);
+      transition: all var(--transition);
+    }
+    
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(0, 255, 213, 0.2);
+      outline: none;
+    }
+    .add-todo-form {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--border-radius);
+      border: 1px solid rgba(0, 255, 213, 0.2);
+    }
+    
+    .add-todo-form input {
+      width: 100%;
+      padding: 0.75rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 255, 213, 0.3);
+      border-radius: var(--border-radius);
+      color: var(--text);
+      margin-bottom: 0.75rem;
+      transition: all var(--transition);
+    }
+    
+    .add-todo-form input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(0, 255, 213, 0.2);
+      outline: none;
+    }
+    
+    .add-todo-form button {
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      border: none;
+      border-radius: var(--border-radius);
+      color: var(--bg);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all var(--transition);
+    }
+    
+    .add-todo-form button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 255, 213, 0.3);
+    }
+    
+    .notification {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      background: linear-gradient(135deg, var(--success), #22c55e);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: var(--border-radius);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      transform: translateX(100%);
+      transition: transform var(--transition);
+      z-index: 1000;
+      max-width: 300px;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.error {
+      background: linear-gradient(135deg, var(--danger), #dc2626);
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+      border-radius: 4px;
+      transition: width var(--transition);
+      width: 0%;
+    }
+    
+    .floating-action {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      border: none;
+      border-radius: 50%;
+      color: var(--bg);
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(0, 255, 213, 0.3);
+      transition: all var(--transition);
+      z-index: 999;
+    }
+    
+    .floating-action:hover {
+      transform: translateY(-5px) scale(1.1);
+      box-shadow: 0 15px 35px rgba(0, 255, 213, 0.4);
+    }
+    
+    @media (max-width: 768px) { 
+      body { 
+        margin: 1rem; 
+      } 
+      
+      .cards { 
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      .timer {
+        font-size: 2.5rem;
+        padding: 1rem;
+      }
+      
+      .timer-controls {
+        flex-direction: column;
+      }
+      
+      .timer-controls button {
+        min-width: auto;
+      }
+      
+      .floating-action {
+        bottom: 1rem;
+        right: 1rem;
+      }
+      
+      .notification {
+        top: 1rem;
+        right: 1rem;
+        left: 1rem;
+        max-width: none;
+      }
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+    <!-- PouchDB for in-browser NoSQL -->
+  <script src="https://unpkg.com/pouchdb@7.3.0/dist/pouchdb.min.js"></script>
+</head>
+<body>
+  <h1>🏠 In the Room</h1>
+  <div class="cards">
+
+    <!-- Short-Term Todos -->
+    <section class="card todo">
+      <h2>📋 Short-Term Todos</h2>
+      <div class="progress-bar">
+        <div class="progress-fill" id="todoProgress"></div>
+      </div>
+      <ol id="todoList">
+        <li><strong>University</strong>
+          <ul>
+            <li data-todo="nn-project">NN Project 2</li>
+            <li data-todo="ct-assignment">CT Assignment 2</li>
+            <li data-todo="cybr-assignment">CYBR Assignment 1</li>
+          </ul>
+        </li>
+        <li><strong>Website!</strong>
+          <ul>
+            <li data-todo="nextcloud-subdomain">set nextcloud to subdomain</li>
+          </ul>
+        </li>
+      </ol>
+      <div class="add-todo-form" id="addTodoForm" style="display: none;">
+        <input type="text" id="newTodoInput" placeholder="Enter new todo item...">
+        <button onclick="addTodo()">Add Todo</button>
+      </div>
+    </section>
+
+    <!-- Goals -->
+    <section class="card goals">
+      <h2>🎯 Goals</h2>
+      <ul>
+        <li><em>Execution Mode</em> until Monday</li>
+        <li><a href="hamish_execution_v1.html" target="_blank">Meta Motivation v1.0 🚀</a></li>
+        <li><em>Move fast</em> once a week</li>
+        <li>Continue to hold more aligned rituals</li>
+      </ul>
+    </section>
+
+    <!-- Timer -->
+    <section class="card timer-card">
+      <h2>⏰ Focus Timer</h2>
+      <div class="timer-presets">
+        <button onclick="setTimerDuration(25)" class="active">25m</button>
+        <button onclick="setTimerDuration(15)">15m</button>
+        <button onclick="setTimerDuration(45)">45m</button>
+        <button onclick="setTimerDuration(5)">5m Break</button>
+      </div>
+      <div class="timer" id="timer">25:00</div>
+      <div class="timer-controls">
+        <button id="start">▶️ Start</button>
+        <button id="pause" style="display: none;">⏸️ Pause</button>
+        <button id="reset">🔄 Reset</button>
+      </div>
+      <div class="timer-stats">
+        <div class="stat">
+          <span class="stat-value" id="sessionsToday">0</span>
+          <span class="stat-label">Today</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="totalSessions">0</span>
+          <span class="stat-label">Total</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="streak">0</span>
+          <span class="stat-label">Streak</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reflections & Contentions -->
+    <section class="card reflections">
+      <h2>💭 Reflections & Contentions</h2>
+      <textarea id="reflectionsText" placeholder="Note any tensions or ideas... What's working? What's not? What are you learning?"></textarea>
+      <div class="btn-group">
+        <button id="saveReflection">💾 Save Reflection</button>
+        <button id="viewLog">📖 View All</button>
+      </div>
+      <div id="logContainer" class="log-container" hidden>
+        <div class="search-container">
+          <input type="text" class="search-input" id="searchInput" placeholder="Search reflections...">
+        </div>
+        <div id="logEntries"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Floating Action Button -->
+  <button class="floating-action" onclick="toggleAddTodo()" title="Add Todo">
+    ➕
+  </button>
+
+  <!-- Notification Container -->
+  <div id="notification" class="notification"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // --- App State ---
+    const AppState = {
+      timer: {
+        duration: 25 * 60,
+        remaining: 25 * 60,
+        isRunning: false,
+        isPaused: false,
+        isBreak: false,
+        interval: null
+      },
+      stats: {
+        sessionsToday: 0,
+        totalSessions: 0,
+        streak: 0,
+        lastSessionDate: null
+      },
+      todos: new Map(),
+      reflections: []
+    };
+
+    // --- Utility Functions ---
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function showNotification(message, type = 'success') {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    function playNotificationSound() {
+      // Create a simple notification sound
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+      oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+    }
+
+    // --- Database Setup ---
+    const db = new PouchDB('dashboard-data');
+
+    async function saveData(key, data) {
+      try {
+        const doc = { _id: key, data, timestamp: new Date().toISOString() };
+        const existing = await db.get(key).catch(() => null);
+        if (existing) {
+          doc._rev = existing._rev;
+        }
+        await db.put(doc);
+      } catch (error) {
+        console.error('Failed to save data:', error);
+      }
+    }
+
+    async function loadData(key) {
+      try {
+        const doc = await db.get(key);
+        return doc.data;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    // --- Timer Functions ---
+    const timerEl = document.getElementById('timer');
+    const startBtn = document.getElementById('start');
+    const pauseBtn = document.getElementById('pause');
+    const resetBtn = document.getElementById('reset');
+
+    function updateTimerDisplay() {
+      timerEl.textContent = formatTime(AppState.timer.remaining);
+      
+      if (AppState.timer.isRunning) {
+        timerEl.classList.add('active');
+      } else {
+        timerEl.classList.remove('active');
+      }
+      
+      if (AppState.timer.isBreak) {
+        timerEl.classList.add('break');
+      } else {
+        timerEl.classList.remove('break');
+      }
+    }
+
+    function startTimer() {
+      if (AppState.timer.interval) return;
+      
+      AppState.timer.isRunning = true;
+      AppState.timer.isPaused = false;
+      
+      startBtn.style.display = 'none';
+      pauseBtn.style.display = 'inline-block';
+      
+      AppState.timer.interval = setInterval(() => {
+        AppState.timer.remaining--;
+        updateTimerDisplay();
+        
+        if (AppState.timer.remaining <= 0) {
+          completeSession();
+        }
+      }, 1000);
+      
+      updateTimerDisplay();
+    }
+
+    function pauseTimer() {
+      clearInterval(AppState.timer.interval);
+      AppState.timer.interval = null;
+      AppState.timer.isRunning = false;
+      AppState.timer.isPaused = true;
+      
+      startBtn.style.display = 'inline-block';
+      pauseBtn.style.display = 'none';
+      
+      updateTimerDisplay();
+    }
+
+    function resetTimer() {
+      clearInterval(AppState.timer.interval);
+      AppState.timer.interval = null;
+      AppState.timer.isRunning = false;
+      AppState.timer.isPaused = false;
+      AppState.timer.remaining = AppState.timer.duration;
+      
+      startBtn.style.display = 'inline-block';
+      pauseBtn.style.display = 'none';
+      
+      updateTimerDisplay();
+    }
+
+    function completeSession() {
+      clearInterval(AppState.timer.interval);
+      AppState.timer.interval = null;
+      AppState.timer.isRunning = false;
+      
+      playNotificationSound();
+      
+      if (!AppState.timer.isBreak) {
+        // Completed a work session
+        AppState.stats.sessionsToday++;
+        AppState.stats.totalSessions++;
+        
+        const today = new Date().toDateString();
+        if (AppState.stats.lastSessionDate === today) {
+          AppState.stats.streak++;
+        } else {
+          AppState.stats.streak = 1;
+        }
+        AppState.stats.lastSessionDate = today;
+        
+        showNotification('Focus session complete! Time for a break! 🎉');
+        setTimerDuration(5, true); // 5-minute break
+      } else {
+        // Completed a break
+        showNotification('Break time over! Ready for another session? 💪');
+        setTimerDuration(25, false); // Back to work
+      }
+      
+      updateStats();
+      saveStats();
+      
+      startBtn.style.display = 'inline-block';
+      pauseBtn.style.display = 'none';
+    }
+
+    function setTimerDuration(minutes, isBreak = false) {
+      if (AppState.timer.isRunning) {
+        pauseTimer();
+      }
+      
+      AppState.timer.duration = minutes * 60;
+      AppState.timer.remaining = AppState.timer.duration;
+      AppState.timer.isBreak = isBreak;
+      
+      // Update preset button states
+      document.querySelectorAll('.timer-presets button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event?.target?.classList.add('active');
+      
+      updateTimerDisplay();
+    }
+
+    function updateStats() {
+      document.getElementById('sessionsToday').textContent = AppState.stats.sessionsToday;
+      document.getElementById('totalSessions').textContent = AppState.stats.totalSessions;
+      document.getElementById('streak').textContent = AppState.stats.streak;
+    }
+
+    async function saveStats() {
+      await saveData('stats', AppState.stats);
+    }
+
+    async function loadStats() {
+      const saved = await loadData('stats');
+      if (saved) {
+        AppState.stats = { ...AppState.stats, ...saved };
+        
+        // Reset daily stats if it's a new day
+        const today = new Date().toDateString();
+        if (AppState.stats.lastSessionDate !== today) {
+          AppState.stats.sessionsToday = 0;
+        }
+      }
+      updateStats();
+    }
+
+    // --- Todo Functions ---
+    function updateTodoProgress() {
+      const todos = document.querySelectorAll('[data-todo]');
+      const completed = document.querySelectorAll('[data-todo].completed').length;
+      const total = todos.length;
+      const percentage = total > 0 ? (completed / total) * 100 : 0;
+      
+      document.getElementById('todoProgress').style.width = `${percentage}%`;
+    }
+
+    function toggleTodo(element) {
+      const todoId = element.dataset.todo;
+      element.classList.toggle('completed');
+      
+      AppState.todos.set(todoId, element.classList.contains('completed'));
+      saveTodos();
+      updateTodoProgress();
+      
+      if (element.classList.contains('completed')) {
+        showNotification('Todo completed! 🎉');
+      }
+    }
+
+    function addTodo() {
+      const input = document.getElementById('newTodoInput');
+      const text = input.value.trim();
+      
+      if (!text) return;
+      
+      const todoId = 'custom-' + Date.now();
+      const li = document.createElement('li');
+      li.dataset.todo = todoId;
+      li.textContent = text;
+      li.onclick = () => toggleTodo(li);
+      
+      // Add to the last category or create a new one
+      let lastUl = document.querySelector('#todoList ul:last-of-type');
+      if (!lastUl) {
+        const newCategory = document.createElement('li');
+        newCategory.innerHTML = '<strong>Personal</strong><ul></ul>';
+        document.getElementById('todoList').appendChild(newCategory);
+        lastUl = newCategory.querySelector('ul');
+      }
+      
+      lastUl.appendChild(li);
+      input.value = '';
+      
+      AppState.todos.set(todoId, false);
+      saveTodos();
+      updateTodoProgress();
+      
+      showNotification('Todo added successfully! 📝');
+    }
+
+    function toggleAddTodo() {
+      const form = document.getElementById('addTodoForm');
+      const isVisible = form.style.display !== 'none';
+      
+      form.style.display = isVisible ? 'none' : 'block';
+      
+      if (!isVisible) {
+        document.getElementById('newTodoInput').focus();
+      }
+    }
+
+    async function saveTodos() {
+      await saveData('todos', Object.fromEntries(AppState.todos));
+    }
+
+    async function loadTodos() {
+      const saved = await loadData('todos');
+      if (saved) {
+        AppState.todos = new Map(Object.entries(saved));
+        
+        // Apply saved states
+        AppState.todos.forEach((completed, todoId) => {
+          const element = document.querySelector(`[data-todo="${todoId}"]`);
+          if (element && completed) {
+            element.classList.add('completed');
+          }
+        });
+      }
+      updateTodoProgress();
+    }
+
+    // --- Reflections Functions ---
+    const textarea = document.getElementById('reflectionsText');
+    const saveBtn = document.getElementById('saveReflection');
+    const viewBtn = document.getElementById('viewLog');
+    const logContainer = document.getElementById('logContainer');
+    const logEntries = document.getElementById('logEntries');
+    const searchInput = document.getElementById('searchInput');
+
+    async function saveReflection() {
+      const text = textarea.value.trim();
+      if (!text) {
+        showNotification('Please enter a reflection first!', 'error');
+        return;
+      }
+      
+      const reflection = {
+        id: new Date().toISOString(),
+        text,
+        timestamp: Date.now()
+      };
+      
+      AppState.reflections.unshift(reflection);
+      await saveData('reflections', AppState.reflections);
+      
+      textarea.value = '';
+      showNotification('Reflection saved! 💭');
+      
+      if (!logContainer.hidden) {
+        renderReflections();
+      }
+    }
+
+    function renderReflections(searchTerm = '') {
+      const filtered = AppState.reflections.filter(r => 
+        r.text.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      
+      logEntries.innerHTML = '';
+      
+      if (filtered.length === 0) {
+        logEntries.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No reflections found.</p>';
+        return;
+      }
+      
+      filtered.forEach(reflection => {
+        const div = document.createElement('div');
+        div.className = 'log-entry';
+        
+        const time = document.createElement('time');
+        time.textContent = new Date(reflection.timestamp).toLocaleString();
+        
+        const p = document.createElement('p');
+        p.textContent = reflection.text;
+        
+        div.appendChild(time);
+        div.appendChild(p);
+        logEntries.appendChild(div);
+      });
+    }
+
+    function toggleReflectionLog() {
+      const isHidden = logContainer.hidden;
+      logContainer.hidden = !isHidden;
+      
+      if (!isHidden) {
+        renderReflections();
+        searchInput.value = '';
+      }
+    }
+
+    async function loadReflections() {
+      const saved = await loadData('reflections');
+      if (saved) {
+        AppState.reflections = saved;
+      }
+    }
+
+    // --- Event Listeners ---
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+    resetBtn.addEventListener('click', resetTimer);
+    
+    saveBtn.addEventListener('click', saveReflection);
+    viewBtn.addEventListener('click', toggleReflectionLog);
+    
+    searchInput.addEventListener('input', (e) => {
+      renderReflections(e.target.value);
+    });
+    
+    // Add click handlers to existing todos
+    document.querySelectorAll('[data-todo]').forEach(todo => {
+      todo.style.cursor = 'pointer';
+      todo.addEventListener('click', () => toggleTodo(todo));
+    });
+    
+    // Enter key handlers
+    document.getElementById('newTodoInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addTodo();
+    });
+    
+    textarea.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && e.ctrlKey) {
+        saveReflection();
+      }
+    });
+
+    // --- Keyboard Shortcuts ---
+    document.addEventListener('keydown', (e) => {
+      // Only if not focused on an input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      
+      switch(e.key) {
+        case ' ':
+          e.preventDefault();
+          if (AppState.timer.isRunning) {
+            pauseTimer();
+          } else {
+            startTimer();
+          }
+          break;
+        case 'r':
+          e.preventDefault();
+          resetTimer();
+          break;
+        case 't':
+          e.preventDefault();
+          toggleAddTodo();
+          break;
+      }
+    });
+
+    // --- Initialization ---
+    async function initApp() {
+      await loadStats();
+      await loadTodos();
+      await loadReflections();
+      updateTimerDisplay();
+      
+      console.log('🏠 Dashboard loaded successfully!');
+      console.log('Keyboard shortcuts: Space (start/pause), R (reset), T (add todo)');
+    }
+
+    // Start the app when DOM is loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+</html>
+
